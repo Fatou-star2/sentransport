@@ -1,11 +1,12 @@
 import './Statistique.css';
 
-function Statistique() {
+function Statistique({ chiffre, label }) {
   return (
     <div className="statistique">
-      <h2>10</h2>
-      <p>lignes</p>
+      <h2>{chiffre}</h2>
+      <p>{label}</p>
     </div>
+    
   );
 }
 

@@ -1,6 +1,6 @@
 .statistique {
   display: inline-block;
-  background-color: #0a6e31;
+  background-color: #20113cc5;
   color: white;
   padding: 20px;
   margin: 10px;
@@ -16,5 +16,4 @@
 
 .statistique p {
   margin: 5px 0 0 0;
-  font-size: 1rem;
 }
