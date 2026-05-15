@@ -36,3 +36,16 @@ font-family: Arial, sans-serif;
     margin-right: 12px;
   }
 }
+.aucune-ligne {
+  text-align: center;
+  color: #e67e22;
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+.compteur-recherche {
+  text-align: center;
+  color: #6e1b0a;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
