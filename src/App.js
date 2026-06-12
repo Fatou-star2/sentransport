@@ -7,33 +7,41 @@ import ListeLignes from './ListeLignes';
 import StatReseau from './StatReseau';
 import Recherche from './Recherche';
 import DetailLigne from './DetailLigne';
+import Carte from './Carte';
 
 function App() {
   const [recherche, setRecherche] = useState("");
   const [ligneSelectionnee, setLigneSelectionnee] = useState(null);
   const [nbRecherches, setNbRecherches] = useState(0);
+  const [detailsLigne, setDetailsLigne] = useState(null);
+  const [chargementDetail, setChargementDetail] = useState(false);
+  const [lignes, setLignes] = useState([]);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState(null);
 
- const [lignes, setLignes] = useState([]);
-const [chargement, setChargement] = useState(true);
-const [erreur, setErreur] = useState(null);
+  function chargerLignes() {
+    setChargement(true);
+    setErreur(null);
+    fetch("http://localhost:5000/lignes")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Erreur serveur : " + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setLignes(data);
+        setChargement(false);
+      })
+      .catch(error => {
+        setErreur(error.message);
+        setChargement(false);
+      });
+  }
 
-useEffect(() => {
-  fetch("http://localhost:5000/lignes")
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("Erreur serveur : " + response.status);
-      }
-      return response.json();
-    })
-    .then(data => {
-      setLignes(data);
-      setChargement(false);
-    })
-    .catch(error => {
-      setErreur(error.message);
-      setChargement(false);
-    });
-}, []);
+  useEffect(() => {
+    chargerLignes();
+  }, []);
 
   const lignesFiltrees = lignes.filter(l =>
     l.depart.toLowerCase().includes(recherche.toLowerCase()) ||
@@ -44,53 +52,65 @@ useEffect(() => {
   function handleClickLigne(ligne) {
     if (ligneSelectionnee && ligneSelectionnee.id === ligne.id) {
       setLigneSelectionnee(null);
+      setDetailsLigne(null);
     } else {
       setLigneSelectionnee(ligne);
+      setChargementDetail(true);
+      fetch("http://localhost:5000/lignes/" + ligne.id)
+        .then(response => response.json())
+        .then(data => {
+          setDetailsLigne(data);
+          setChargementDetail(false);
+        })
+        .catch(() => setChargementDetail(false));
     }
   }
-// Ecran de chargement
-if (chargement) {
-  return (
-    <div className="App">
-      <Header />
-      <main className="contenu">
-        <p className="message-chargement">Chargement des lignes...</p>
-      </main>
-    </div>
-  );
-}
 
-// Ecran d'erreur
-if (erreur) {
-  return (
-    <div className="App">
-      <Header />
-      <main className="contenu">
-        <div className="message-erreur">
-          <p>Impossible de charger les lignes.</p>
-          <p className="erreur-detail">{erreur}</p>
-          <p>Verifiez que le serveur Flask est lance (python api/app.py).</p>
-        </div>
-      </main>
-    </div>
-  );
-}
-  return (
-    <div className="App">
-      <Header />
+  if (chargement) {
+    return (
+      <div className="App">
+        <Header />
+        <main className="contenu">
+          <p className="message-chargement">Chargement des lignes...</p>
+        </main>
+      </div>
+    );
+  }
 
+  if (erreur) {
+    return (
+      <div className="App">
+        <Header />
+        <main className="contenu">
+          <div className="message-erreur">
+            <p>Impossible de charger les lignes.</p>
+            <p className="erreur-detail">{erreur}</p>
+            <p>Verifiez que le serveur Flask est lance (python api/app.py).</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="App">
+      <Header />
       <main className="contenu">
         <section className="bienvenue">
-          <p>Bienvenue ! Cette application vous aide à trouver votre ligne de bus à Dakar.</p>
+          <p>Bienvenue ! Cette application vous aide a trouver votre ligne de bus a Dakar.</p>
         </section>
 
+        <button className="bouton-recharger" onClick={chargerLignes}>
+          Recharger
+        </button>
+
         <p className="compteur-recherche">
-          Vous avez effectué {nbRecherches} recherche(s)
+          Vous avez effectue {nbRecherches} recherche(s)
         </p>
 
         <div className="stats-container" style={{ display: 'flex', gap: '20px', justifyContent: 'center', margin: '20px 0' }}>
           <Statistique chiffre="10" label="lignes" />
-          <Statistique chiffre="156" label="arrêts" />
+          <Statistique chiffre="156" label="arrets" />
           <Statistique chiffre="30" label="bus" />
         </div>
 
@@ -114,14 +134,16 @@ if (erreur) {
         />
 
         {lignesFiltrees.length === 0 && (
-          <p className="aucune-ligne">Aucune ligne trouvée</p>
+          <p className="aucune-ligne">Aucune ligne trouvee</p>
         )}
 
-        {ligneSelectionnee && <DetailLigne ligne={ligneSelectionnee} />}
+        {chargementDetail && <p className="message-chargement">Chargement du detail...</p>}
+        {detailsLigne && <DetailLigne ligne={detailsLigne} />}
+
+        <Carte />
 
         <StatReseau lignes={lignes} />
       </main>
-
       <Footer />
     </div>
   );
