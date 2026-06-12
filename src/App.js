@@ -8,6 +8,8 @@ import StatReseau from './StatReseau';
 import Recherche from './Recherche';
 import DetailLigne from './DetailLigne';
 import Carte from './Carte';
+import Meteo from './Meteo';
+import SignalerIncident from './SignalerIncident';
 
 function App() {
   const [recherche, setRecherche] = useState("");
@@ -96,6 +98,8 @@ function App() {
     <div className="App">
       <Header />
       <main className="contenu">
+        <Meteo />
+
         <section className="bienvenue">
           <p>Bienvenue ! Cette application vous aide a trouver votre ligne de bus a Dakar.</p>
         </section>
@@ -141,6 +145,8 @@ function App() {
         {detailsLigne && <DetailLigne ligne={detailsLigne} />}
 
         <Carte />
+
+        <SignalerIncident />
 
         <StatReseau lignes={lignes} />
       </main>
